@@ -124,7 +124,6 @@ void main() {
         // as a label goes from horizontal <=> vertical in angle
         // it goes from 0% foreshortening to up to around 70% foreshortening
         lowp float pitchfactor = 1.0 - cos(u_pitch * sin(u_pitch * 0.75));
-        pitchfactor *= u_pitch_scale;
 
         // use the lineangle to position points a,b along the line
         // project the points and calculate the label angle in projected space
@@ -140,7 +139,7 @@ void main() {
         vec2 offset = RotationMatrix * (vec2(foreshortening, 1.0) * a_offset);
         vec2 extrude = fontScale * u_extrude_scale * (offset / 64.0);
 
-        //extrude *= perspective_ratio;
+        extrude *= perspective_ratio;
 
         gl_Position = u_matrix * vec4(a_pos, 0, 1) + vec4(extrude, 0, 0);
         gl_Position.z += clipUnusedGlyphAngles(v_size*perspective_ratio, layoutSize, a_minzoom, a_maxzoom) * gl_Position.w;
