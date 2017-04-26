@@ -22,11 +22,13 @@ class CollisionTile {
             pitch = serialized.pitch;
             cameraToCenterDistance = serialized.cameraToCenterDistance;
             cameraToTileDistance = serialized.cameraToTileDistance;
+            this.minimumPitchScaling = serialized.minimumPitchScaling;
             this.grid = new Grid(serialized.grid);
             this.ignoredGrid = new Grid(serialized.ignoredGrid);
         } else {
             this.grid = new Grid(EXTENT, 12, 6);
             this.ignoredGrid = new Grid(EXTENT, 12, 0);
+            this.minimumPitchScaling = 1;
         }
 
         this.perspectiveRatio = cameraToTileDistance / cameraToCenterDistance;
@@ -36,8 +38,6 @@ class CollisionTile {
 
         this.angle = angle;
         this.pitch = pitch;
-
-        this.minimumPitchScaling = 1;
 
         const sin = Math.sin(angle),
             cos = Math.cos(angle);
@@ -102,6 +102,9 @@ class CollisionTile {
         return {
             angle: this.angle,
             pitch: this.pitch,
+            cameraToTileDistance: this.cameraToTileDistance,
+            cameraToCenterDistance: this.cameraToCenterDistance,
+            minimumPitchScaling: this.minimumPitchScaling,
             grid: grid,
             ignoredGrid: ignoredGrid
         };
