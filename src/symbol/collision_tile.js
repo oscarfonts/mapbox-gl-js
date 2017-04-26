@@ -14,12 +14,14 @@ const intersectionTests = require('../util/intersection_tests');
  * @private
  */
 class CollisionTile {
-    constructor(angle, pitch, collisionBoxArray) {
+    constructor(angle, pitch, cameraToCenterDistance, cameraToTileDistance, collisionBoxArray) {
         if (typeof angle === 'object') {
             const serialized = angle;
             collisionBoxArray = pitch;
             angle = serialized.angle;
             pitch = serialized.pitch;
+            cameraToCenterDistance = serialized.cameraToCenterDistance;
+            cameraToTileDistance = serialized.cameraToTileDistance;
             this.grid = new Grid(serialized.grid);
             this.ignoredGrid = new Grid(serialized.ignoredGrid);
         } else {
@@ -27,8 +29,10 @@ class CollisionTile {
             this.ignoredGrid = new Grid(EXTENT, 12, 0);
         }
 
-        this.minScale = 0;
-        this.maxScale = 2;
+        this.perspectiveRatio = cameraToTileDistance / cameraToCenterDistance;
+
+        this.minScale = .5 / this.perspectiveRatio;
+        this.maxScale = 2 / this.perspectiveRatio;
 
         this.angle = angle;
         this.pitch = pitch;
@@ -41,7 +45,8 @@ class CollisionTile {
         this.reverseRotationMatrix = [cos, sin, -sin, cos];
 
         // Stretch boxes in y direction to account for the map tilt.
-        this.yStretch = 1 / Math.cos(pitch / 180 * Math.PI);
+        //this.yStretch = 1 / Math.cos(pitch / 180 * Math.PI);
+        this.yStretch = cameraToTileDistance / (cameraToCenterDistance * Math.cos(pitch / 180 * Math.PI));
 
         // The amount the map is squished depends on the y position.
         // Sort of account for this by making all boxes a bit bigger.
@@ -50,7 +55,7 @@ class CollisionTile {
         // purposes, but we still want to use the yStretch approximation
         // here because we can't adjust the aspect ratio of the collision
         // boxes at render time.
-        this.yStretch = Math.pow(this.yStretch, 1.3);
+        //this.yStretch = Math.pow(this.yStretch, 1.3);
 
         this.collisionBoxArray = collisionBoxArray;
         if (collisionBoxArray.length === 0) {
@@ -130,7 +135,7 @@ class CollisionTile {
             // calculations... so it's probably not a very performant solution.
             // Experimenting with placement time in the Washington DC area, I see placement
             // taking about 4x longer with this change.
-            const startBig = 8;
+            const startBig = this.perspectiveRatio;
             const x1 = x + box.x1 * startBig;
             const y1 = y + box.y1 * yStretch * startBig;
             const x2 = x + box.x2 * startBig;
