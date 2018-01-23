@@ -17,8 +17,8 @@ exports.getJSON = function(url, callback) {
         callback(e);
     };
     xhr.onload = function() {
-            const is_file = xhr.responseURL.indexOf("file://") === 0
-            if (((xhr.status >= 200 && xhr.status < 300) || is_file) && xhr.response) {
+        const isFile = xhr.responseURL.indexOf("file://") === 0;
+        if (((xhr.status >= 200 && xhr.status < 300) || isFile) && xhr.response) {
             let data;
             try {
                 data = JSON.parse(xhr.response);
@@ -42,11 +42,11 @@ exports.getArrayBuffer = function(url, callback) {
         callback(e);
     };
     xhr.onload = function() {
-            const is_file = xhr.responseURL.indexOf("file://") === 0
-            if (((xhr.status >= 200 && xhr.status < 300) || is_file) && xhr.response) {
+        const isFile = xhr.responseURL.indexOf("file://") === 0;
+        if (xhr.response.byteLength === 0 && xhr.status === 200) {
             return callback(new Error('http status 200 returned without content.'));
         }
-        if (xhr.status >= 200 && xhr.status < 300 && xhr.response) {
+        if (((xhr.status >= 200 && xhr.status < 300) || isFile) && xhr.response) {
             callback(null, {
                 data: xhr.response,
                 cacheControl: xhr.getResponseHeader('Cache-Control'),
