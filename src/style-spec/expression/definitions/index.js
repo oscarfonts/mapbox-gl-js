@@ -579,7 +579,51 @@ CompoundExpression.register(expressions, {
         StringType,
         [CollatorType],
         (ctx, [collator]) => collator.evaluate(ctx).resolvedLocale()
-    ]
+    ],
+    'regex-test': {
+        type: BooleanType,
+        overloads: [
+            [
+                [StringType, StringType],
+                (ctx, [r, s]) => RegExp(r.evaluate(ctx)).test(s.evaluate(ctx))
+            ], [
+                [StringType, StringType, StringType],
+                (ctx, [r, f, s]) => RegExp(r.evaluate(ctx), f.evaluate(ctx)).test(s.evaluate(ctx))
+            ]
+        ]
+    },
+    'regex-replace': {
+        type: StringType,
+        overloads: [
+            [
+                [StringType, StringType, StringType],
+                (ctx, [r, n, s]) => s.evaluate(ctx).replace(RegExp(r.evaluate(ctx)), n.evaluate(ctx))
+            ], [
+                [StringType, StringType, StringType, StringType],
+                (ctx, [r, f, n, s]) => s.evaluate(ctx).replace(RegExp(r.evaluate(ctx), f.evaluate(ctx)), n.evaluate(ctx))
+            ]
+        ]
+    },
+    'regex-match': {
+        type: array(StringType),
+        overloads: [
+            [
+                [StringType, StringType],
+                (ctx, [r, s]) => {
+                    const m = RegExp(r.evaluate(ctx)).exec(s.evaluate(ctx));
+                    /* Slice will make a new array without the extra attributes of the match object */
+                    return (m !== null) ? m.slice() : null;
+                }
+            ], [
+                [StringType, StringType, StringType],
+                (ctx, [r, f, s]) => {
+                    const m = RegExp(r.evaluate(ctx), f.evaluate(ctx)).exec(s.evaluate(ctx));
+                    /* Slice will make a new array without the extra attributes of the match object */
+                    return (m !== null) ? m.slice() : null;
+                }
+            ]
+        ]
+    }
 });
 
 export default expressions;
